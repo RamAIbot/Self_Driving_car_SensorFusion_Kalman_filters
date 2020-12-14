@@ -1,4 +1,4 @@
-# Extended Kalman Filter Project Starter Code
+# Sensor Fusion using Kalman filter and Extended Kalman Filter
 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
@@ -36,6 +36,10 @@
 
 <img src="jac.JPG" alt="jac"/>
  
+ <p> The key point here is that the phi values is obtained from arctan function. In C++, atan2() returns values between -pi and pi. When calculating phi in y = z - h(x) for radar measurements, the resulting angle phi in the y vector should be adjusted so that it is between -pi and pi. The Kalman filter is expecting small angle values between the range -pi and pi. When working in radians, we can add 2π or subtract 2π until the angle is within the desired range. Without normalization we obtain the below abnormality in prediction.</p>
+
+<img src="NoAnglenormalization.JPG" alt="Noanglenormalization"/>
+
 <h1> Kalman Filter and Extended Kalman filter </h1>
 
 <p> The kalman filter first initializes all its matrices and then performs predict and update continuously. The various matrices are as below </p>
@@ -186,3 +190,61 @@ R (for RADAR) =
 <img src="q.JPG" alt="Q"/>
 
 
+<h1>Implementation Architecture </h1>
+
+<p> The input data is obtained from LiDAR and RADAR sensors. The data is of the form of measurement package. Here the data is stored in the file obj_pose-laser-radar-synthetic-input.txt. The data is of the below form: </p>
+
+<p> For a row containing radar data, the columns are: sensor_type, rho_measured, phi_measured, rhodot_measured, timestamp, x_groundtruth, y_groundtruth, vx_groundtruth, vy_groundtruth, yaw_groundtruth, yawrate_groundtruth.</p>
+
+<p>For a row containing lidar data, the columns are: sensor_type, x_measured, y_measured, timestamp, x_groundtruth, y_groundtruth, vx_groundtruth, vy_groundtruth, yaw_groundtruth, yawrate_groundtruth.</p>
+
+<p>Whereas radar has three measurements (rho, phi, rhodot), lidar has two measurements (x, y). We also assume that the RADAR and LiDAR data comes one after the other with a delay dt. The code can be manipulated to make get them simultaneously by setting dt = 0 in LiDAR data as it comes first and predict the result. This dt = 0 enables the states to be in the same previous value but only the updation of matrices takes place and when we obtain the RADAR data we make the predict for the next time stamp followed by update. The sensor fusion general flow is given below.</p>
+
+<img src="sf.JPG" alt="SFflow"/>
+
+<p> Here is a brief overview of what happens when you run the code files: </p>
+<OL>
+ <LI> Main.cpp reads in the data and sends a sensor measurement to FusionEKF.cpp </LI>
+ <LI> FusionEKF.cpp takes the sensor data and initializes variables and updates variables. The Kalman filter equations are not in this file. FusionEKF.cpp has a variable called ekf_, which is an instance of a KalmanFilter class. The ekf_ will hold the matrix and vector values. You will also use the ekf_ instance to call the predict and update equations.</LI>
+ <LI>The KalmanFilter class is defined in kalman_filter.cpp and kalman_filter.h. You will only need to modify 'kalman_filter.cpp', which contains functions for the prediction and update steps.</LI>
+</OL>
+
+<h1> Accuracy Estimation </h1>
+
+<p> To measure the accuracy of the state prediction we use a root mean square error function. The dataset comes with the ground truth of the object(cycle) position which can be compared with the prediction to get the accuracy. The accuracy here is 0.0973 for state x, 0.0855 for state y, 0.4513 for velocity in x direction and 0.4399 for velocity in y direction for dataset 1.</p>
+
+<img src="rmse.JPG" alt="rmse"/>
+
+<h1> Sensor Fusion Implementation </h1>
+
+```
+The simulator can be downloaded in the link (Term 2 Simulator V1.45)
+https://github.com/udacity/self-driving-car-sim/releases
+Installation of dependencies (uWebsocket)
+
+apt-get install zlib1g-dev
+./install-linux.sh (based on linux distribution)
+
+To Run the project.
+First Start the simulator for ekf and ukf project.
+Now in terminal in project path
+
+mkdir build
+cd build
+cmake ..
+make
+./ExtendedKF
+
+Now in simulator select the dataset and click start.
+
+```
+
+<h1> Results </h1>
+
+<p>The result of sensor fusion estimation for dataset 1 is given below. The LiDAR measurements are red circles, RADAR measurements are blue circles with an arrow pointing in the direction of the observed angle, and estimation markers are green triangles. </p>
+
+<img src="dataset1.JPG" alt="dataset"/>
+
+<p> In dataset 2 the car moves in the reverse direction and the corresponding output is shown below. </p>
+
+<img src="dataset2.JPG" alt="dataset2"/>
