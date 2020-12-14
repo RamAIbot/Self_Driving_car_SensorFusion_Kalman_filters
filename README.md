@@ -16,11 +16,11 @@
 
 <p> So to solve this we use a linearized version of the curve by taking the origin as the equilibrium point and linearize around a small neighbourhood. We use taylor series expansion and take the first two terms as they show the linear region around the origin.</p>
 
-<img src="" alt="taylorseries"/>
+<img src="ts.JPG" alt="taylorseries"/>
 
 <p> Since this problem involves 3D (3 measurments). We need to use multivariate taylor series to perform the linearzition around the equilibrium point.</p>
 
-<img src="" alt="multivariateTS"/>
+<img src="mts.JPG" alt="multivariateTS"/>
 
 <p> where Df(a) is called the Jacobian matrix and D^2 f(a) is called the Hessian matrix. They represent first order and second order derivatives of multi-dimensional equations. Here we consider only the Jacobian matrix for linearization. Thus now if we use Kalman filter over the linearized version of the measurment curve, the Gaussian distribution is preserved at the output as in the image. This use of Jacobian in the kalman filter leads to the use of Extended Kalman filtering.</p>
 
@@ -28,7 +28,7 @@
  
 <p> The RADAR provides three measurments values. The Rho provides the radial distance from the origin. The phi provided the angle between the Rho line and x axis. Finally the Rho dot provides the radial velocity of the object which is tracked.</p>
 
-<img src="" alt="RADARmeasurements"/>
+<img src="radarmesurmensts.JPG" alt="RADARmeasurements"/>
 
 <img src="formula1.JPG" alt="conversionformula"/>
 
@@ -36,7 +36,7 @@
 
 <img src="jac.JPG" alt="jac"/>
  
-<h3> Kalman Filter and Extended Kalman filter </h3>
+<h1> Kalman Filter and Extended Kalman filter </h1>
 
 <p> The kalman filter first initializes all its matrices and then performs predict and update continuously. The various matrices are as below </p>
 
@@ -48,9 +48,9 @@
  <li> R -> Measurement Uncertainity. This denotes the uncertainity in the sensor values. This is also a diagonal matrix with uncertainity for each measurement in the corresponding diagonal. (Size: Number of measurements x Number of Measurements). </li>
 </ul>
 
-<h5> Kalman filter Initialization </h5>
+<h3> Kalman filter Initialization </h3>
 
-<H6> State transition Matrix </h6>
+<H5> State transition Matrix </h5>
 
 <p>The state equations are given below. </p>
 <UL>
@@ -63,7 +63,7 @@
 
 <img src="F.JPG" alt="F"/>
 
-<h6>Uncertainity Matrix </h6>
+<h5>Uncertainity Matrix </h5>
 
 <p> The initial X and Y position of the car is know as it is in origin. So we set 0 in P matrix.Since the velocities are unknown we set higher values in uncertainity matrix.</p>
 
@@ -96,7 +96,7 @@ P =
  </tr>
 </table>
 
-<h6>Measurment Matrix </h6>
+<h5>Measurment Matrix </h5>
 
 <p>Since we use Kalman filtering approach for LiDAR values and Extended Kalman filtering approach for RADAR values we have separate H matrix for both.</p>
 
@@ -122,7 +122,7 @@ H (for RADAR. Its the Jacobian matrix) =
 
 <img src="jac1.JPG" alt="jac1"/>
 
-<h6> Measurement Uncertainity Matrix </h6>
+<h5> Measurement Uncertainity Matrix </h5>
 
 <p> The General form of R matrix is as below. The diagonal terms means noise variance in the corresponding sensor values. This info is sometimes provided by the sensor manufacturer. </p>
 
@@ -161,5 +161,28 @@ R (for RADAR) =
   <td>0.09</td>
  </tr>
 </table>
+
+
+<h3> Kalman filter equations </h3>
+
+<p> The images shows the equations of Kalman filters and Extended Kalman filters as well. The only change we do for EKF is that we use the Jacobian matrix in determining the state and in measurement update. </p>
+
+<img src="formula.JPG" alt="equations"/>
+
+<p> Here we assume that the noise is of zero mean Gaussian distribution and ignore the parameter 'u' while determining the next state. But there is still some uncertainity in the object measurmenets. The motion noise contributes significantly. The model assumes that the object's velocity is constant between the time intervals. But practically it is not the case. The Object's velocity may be changed due to acceleration. This introduces motion noise and so we model our state equation by including acceleration as well. </p>
+
+<UL>
+ <li> Px` = Px + (Vx * dt) + (ax * dt^2 /2) </li>
+ <li> Py` = Py + (Vy * dt) + (ay * dt^2 /2) </li>
+ <li> Vx` = Vx             + (ax * dt) </li>
+ <li> Vy` = Vy             + (ay * dt) </li>
+</UL>
+<p> -------------------------- &#8287; #################### </p>
+
+<p>    deterministic part    &#8287;&#8287;&#8287;&#8287;&#8287;&#8287;&#8287;   Random noise (Stochastic part). </p>
+
+<p> To solve this we usually add a certain offset to the P matrix indicating the Kalman filter that the estimation is not fully correct. So that even after convergence the kalman filter captures the change in velocity. This is achieved by a process covariance matrix. Here we use variance noise_ax = 9 and variance noise_ay = 9 </p>
+
+<img src="q.JPG" alt="Q"/>
 
 
