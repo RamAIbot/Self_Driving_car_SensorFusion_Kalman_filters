@@ -26,9 +26,17 @@
 
 <img src="ekfpoc1.JPG" alt="EKFpoc"/>
  
-<p> The RADAR provides three measurments values. The  
+<p> The RADAR provides three measurments values. The Rho provides the radial distance from the origin. The phi provided the angle between the Rho line and x axis. Finally the Rho dot provides the radial velocity of the object which is tracked.</p>
+
+<img src="" alt="RADARmeasurements"/>
+
+<img src="formula1.JPG" alt="conversionformula"/>
+
+<p> These measurments being highly non linear may need to be converted to linear values around the equilibrium point by the use of Jacobians. Since we have 4 states we need to compute the Jacobian (partial differential) for each of the states and for each of the measurement value.</p>
+
+<img src="jac.JPG" alt="jac"/>
  
-<h3> Kalman Filter </h3>
+<h3> Kalman Filter and Extended Kalman filter </h3>
 
 <p> The kalman filter first initializes all its matrices and then performs predict and update continuously. The various matrices are as below </p>
 
@@ -88,5 +96,70 @@ P =
  </tr>
 </table>
 
-<h6>
+<h6>Measurment Matrix </h6>
+
+<p>Since we use Kalman filtering approach for LiDAR values and Extended Kalman filtering approach for RADAR values we have separate H matrix for both.</p>
+
+
+H (for LiDAR) = 
+
+<table>
+ <tr>
+  <td>1</td>
+  <td>0</td>
+  <td>0</td>
+  <td>0</td>
+ </tr>
+ <tr>
+  <td>0</td>
+  <td>1</td>
+  <td>0</td>
+  <td>0</td>
+ </tr>
+</table>
+
+H (for RADAR. Its the Jacobian matrix) = 
+
+<img src="jac1.JPG" alt="jac1"/>
+
+<h6> Measurement Uncertainity Matrix </h6>
+
+<p> The General form of R matrix is as below. The diagonal terms means noise variance in the corresponding sensor values. This info is sometimes provided by the sensor manufacturer. </p>
+
+<img src="R.JPG" alt="R"/>
+<p>Since we use two sensors for measurements, we have 2 matrices here.</p>
+
+R (for LiDAR) = 
+
+<table>
+ <tr>
+  <td>0.0225</td>
+  <td>0</td>
+ </tr>
+ <tr>
+  <td>0</td>
+  <td>0.0225</td>
+ </tr>
+</table>
+
+R (for RADAR) = 
+
+<table>
+ <tr>
+  <td>0.09</td>
+  <td>0</td>
+  <td>0</td>
+ </tr>
+ <tr>
+  <td>0</td>
+  <td>0.0009</td>
+  <td>0</td>
+ </tr>
+ <tr>
+  <td>0</td>
+  <td>0</td>
+  <td>0.09</td>
+ </tr>
+</table>
+
 
